@@ -1,51 +1,94 @@
-const express = require('express');
+const express = require("express");
+const { default: mongoose } = require("mongoose");
+const Product = require("../models/product");
 const router = express.Router();
 
-router.get('/',(req,res,next)=>{
-    res.status(200).json({
-        message: 'Handling GET requests to /products'
+router.get("/", (req, res, next) => {
+  Product.find()
+    .exec()
+    .then((doc) => {
+      res.status(200).json({
+        message: "Handling GET requests to /products",
+        producs: doc,
+      });
     })
-})
+    .catch((err) => {
+      console.log(err);
+      res.send(500).json({ error: err });
+    });
+});
 
-router.post('/',(req,res,next)=>{
-    const {name, price} = req.body
-    const product = {
-        name, price
-    }
-    console.log(req.body);
-    res.status(201).json({
-        message: 'Handling POST requests to /products',
-        product
+router.post("/", (req, res, next) => {
+  const { name, price } = req.body;
+  const product = new Product({
+    _id: new mongoose.Types.ObjectId(),
+    name: name,
+    price: price,
+  });
+  product
+    .save() // Save() method is provided by mongoose
+    .then((result) => {
+      console.log(result);
+      if (result) res.status(201).json(result);
+      else
+        res
+          .status(404)
+          .json({ message: "No Valid data found for Provided ID." });
     })
-})
+    .catch((err) => {
+      console.log(err);
+      res.send(500).json({ error: err });
+    });
+  console.log(req.body);
+});
 
-router.get('/:productId',(req,res,next)=>{
-    console.log(req.params)
+router.get("/:productId", (req, res, next) => {
+  console.log(req.params);
+  const id = req.params.productId;
+
+  Product.findById(id)
+    .exec()
+    .then((doc) => {
+      console.log(doc);
+      if (doc) res.status(200).json(doc);
+      else
+        res
+          .status(404)
+          .json({ message: "No Valid data found for Provided ID." });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: err });
+    });
+});
+
+router.patch("/:productId", (req, res, next) => {
     const id = req.params.productId;
-
-    if(id === 'special')
+    const updatedObj = {};
+    for (const ops of req.body) {
+        updatedObj[ops.propName] = ops.value;
+    }
+    Product.updateOne({_id:id},{$set:updatedObj}).exec().then(doc=>{
         res.status(200).json({
-            message: 'Handling GET requests to /products/:productId',
-            id
-        })
-    else    
+            message: "Updated the Product",
+            doc 
+          });
+    })
+  
+});
+
+router.delete("/:productId", (req, res, next) => {
+    const id = req.params.productId;
+    Product.remove({_id:id}).exec().then(result=>{
         res.status(200).json({
-            message: "You Passed random ID"
-        })
-})
-
-router.patch('/:productId',(req,res,next)=>{
-    res.status(200).json({
-        message: 'Updated the Product'
+            message: "Deleted the Product",
+            result
+          });
+    }).catch(err=>{
+        console.log(err);
+        res.status(500).json({ error: err });
     })
-})
 
-router.delete('/:productId',(req,res,next)=>{
-    res.status(200).json({
-        message: 'Deleted the Product'
-    })
-})
-
-
+});
 
 module.exports = router;

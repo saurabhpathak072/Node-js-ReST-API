@@ -2,8 +2,17 @@ const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 
+const dotenv = require("dotenv");
+
+const connectDB = require("./config/db");
+
 const productRoutes = require("./Api/routes/products");
 const orderRoutes = require("./Api/routes/orders");
+
+dotenv.config();
+// ---------- Connect To MongoDB -----------
+connectDB();
+// -----------------------------------------
 
 const app = express();
 
