@@ -4,17 +4,28 @@ const Product = require("../models/product");
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
+  console.log('req ; ',req);
   Product.find()
+  .select("_id name price")
     .exec()
-    .then((doc) => {
+    .then((docs) => {
       res.status(200).json({
         message: "Handling GET requests to /products",
-        producs: doc,
+        count: docs.length,
+        producs: docs?.map(doc=>{
+          return{
+           ...doc._doc,
+            request:{
+              method:'GET',
+              url:`http://${req.hostname}:3000/products/${doc._doc._id}` 
+            }
+          }
+        }),
       });
     })
     .catch((err) => {
       console.log(err);
-      res.send(500).json({ error: err });
+      res.status(500).json({ error: err });
     });
 });
 
@@ -37,9 +48,9 @@ router.post("/", (req, res, next) => {
     })
     .catch((err) => {
       console.log(err);
-      res.send(500).json({ error: err });
+      res.status(500).json({ error: err });
     });
-  console.log(req.body);
+  
 });
 
 router.get("/:productId", (req, res, next) => {
