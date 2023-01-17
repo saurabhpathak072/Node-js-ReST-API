@@ -8,8 +8,11 @@ const connectDB = require("./config/db");
 
 const productRoutes = require("./Api/routes/products");
 const orderRoutes = require("./Api/routes/orders");
+const userRoutes = require("./Api/routes/user")
 
+// ---------- configure enviroment --------
 dotenv.config();
+// ----------------------------------------
 // ---------- Connect To MongoDB -----------
 connectDB();
 // -----------------------------------------
@@ -46,6 +49,7 @@ app.use((req, res, next) => {
 // Routes which should handle request
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
+app.use("/user", userRoutes);
 
 // Error Handling
 app.use((req, res, next) => {
