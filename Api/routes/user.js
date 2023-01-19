@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const User = require("../models/user");
-const { deleteUser,loginController } = require("../Controller/user");
+const { deleteUser,loginController, twitterLogInController } = require("../Controller/user");
 
 const router = express.Router();
 
@@ -51,6 +51,7 @@ router.route("/signup").post((req, res, next) => {
 });
 
 router.route("/login").post(loginController)
+router.route("/twitter").post(twitterLogInController)
 
 router.route('/:userId').delete(deleteUser);
 
